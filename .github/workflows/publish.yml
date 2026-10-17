@@ -1,0 +1,27 @@
+name: Publish dashboard
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/publish.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download dashboard HTML
+        run: |
+          curl -fsSL --retry 3 -o index.html 'https://sg.migoo.ai/beeai/api/v1/media/signed/budee/2026/10/17/e7138476.html?expires=1792282849&sig=6691328c133310206c3ebfbd430b81073f6900320c7aa3242285b863cf18ee64'
+          echo '8cfbe1680a146014bd4ca06b3240ec299658ad0700a553db729034b67f59d4fc  index.html' | sha256sum -c -
+      - name: Commit index.html
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git diff --cached --quiet || git commit -m 'Publikasikan dasbor Kas Harian'
+          git push
